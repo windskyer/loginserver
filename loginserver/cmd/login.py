@@ -8,7 +8,5 @@ import sys
 from loginserver.common import log as logging
 from loginserver.common import config
 
-
-
 def main():
     argv = sys.argv()
