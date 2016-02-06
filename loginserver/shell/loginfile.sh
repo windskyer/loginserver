@@ -17,5 +17,5 @@ expect {
 #expect "*~]$"
 #send "sudo su -\r"
 expect "*~]#"
-send "clear\r"
+#send "clear\r"
 interact
