@@ -2,12 +2,15 @@ class Error(Exception):
     pass
 
 class LoginserverError(Exception):
-    message = _("An unknown exception occurred.")
+    message = ("An unknown exception occurred.")
     code = 500
     headers = {}
     safe = False
-    super.__init__(LoginserverError, self)
+    def __init__(self):
+        super(LoginserverError, self).__init__()
 
-class LogConfigError(base_excption):
-    message = "Not Found %(pfile)s"
-    super.__init__(LogConfigError, self)
+class LogConfigError(Error):
+    msg = "unkwon"
+    def __init__(self, msg):
+        self.msg = msg
+        super(LogConfigError, self).__init__(self.msg)

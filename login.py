@@ -1,7 +1,8 @@
 #!/usr/bin/env python 
 #coding: utf-8
 
-#auth leidong
+#author zwei
+#email zwei@hotmail.com
 #date 20150331
 
 import os, sys
@@ -17,9 +18,6 @@ from paramiko import PasswordRequiredException
 from paramiko.dsskey import DSSKey
 from paramiko.rsakey import RSAKey
 from paramiko.ssh_exception import SSHException
-
-
-SERVERS = {"vm200":["172.24.23.200",],"vm222":["172.24.23.222",],"aix20":["172.24.23.20"],"aix212":["172.24.23.212",], "aix140":["172.24.23.140",]}
 
 
 FILE_DIR = os.getcwd()
