@@ -11,7 +11,7 @@ import pexpect
 from pexpect import spawn
 
 from loginserver.common import cfg
-from loginserver.common import excption
+from loginserver import excption
 CONF = cfg.CONF
 
 def key_file(key_name="id_rsa"):
@@ -43,7 +43,7 @@ class LoginServer(spawn):
         if not force_password:
             self.ssh_options.append("-o 'RSAAuthentication=no' -o 'PubkeyAuthentication=no'")
 
-    def _open(self, alias=None):
+    def _set_cmd(self, alias=None):
         if alias is None or alias not in CONF.groups:
             raise exception.NotFoundHost(host=hostname)
 
@@ -62,11 +62,17 @@ class LoginServer(spawn):
         if self.is_key:
             self.ssh_options.append(" -i %s" % self.key_file)
 
-        self.ssh_options.append(" -p %s" % self.port)
-                        
-        if self.hostname:
-            self.ssh_options.append(" -i %s" % self.key_file)
+        if self.username:
+            self.ssh_options.append(" -l %s" % self.username)
 
+        self.ssh_options.append(" -p %s" % self.port)
+        self.ssh_options.append(self.hostname)
+        return ' '.join(self.ssh_options)
+
+    def _set_terminal(self):
+
+
+        pass
     def _pty_size(self, rows=24, cols=80):
         # Can't do much for Windows
         if platform.system() == 'Windows':
@@ -82,7 +88,54 @@ class LoginServer(spawn):
     @property
     def _resize(self):
         rows, cols = self._pty_size()
-        return {'resize': {'width': cols, 'height': rows}}
+        return (rows, cols)
 
-    def login(self):
-        pass
+    def first_phase(self,cmd):
+        # First phase
+        i = self.expect(["(?i)are you sure you want to continue connecting", self.original_prompt, "(?i)(?:password)|(?:passphrase for key)", "(?i)permission denied", "(?i)terminal type", TIMEOUT, "(?i)connection closed by remote host"], timeout=self.login_timeout)
+        if i==0:
+            self.sendline('yes')
+            i = self.expect(["(?i)are you sure you want to continue connecting", self.original_prompt, "(?i)(?:password)|(?:passphrase for key)", "(?i)permission denied", "(?i)terminal type", TIMEOUT])
+        elif i==2:
+            self.sendline(self.password)
+            i = self.expect(["(?i)are you sure you want to continue connecting", self.original_prompt, "(?i)(?:password)|(?:passphrase for key)", "(?i)permission denied", "(?i)terminal type", TIMEOUT])
+        elif i==4:
+            self.sendline(self.terminal_type)
+            i = self.expect(["(?i)are you sure you want to continue connecting", self.original_prompt, "(?i)(?:password)|(?:passphrase for key)", "(?i)permission denied", "(?i)terminal type", TIMEOUT])
+        else:
+            raise 
+        return i
+
+    def second_phase(self, i):
+          # Second phase 
+        if i==0:
+            self.close()
+            raise ExceptionPexpect ('Weird error. Got "are you sure" prompt twice.')
+        elif i==1:
+            self.setwinsize(*self._resize)
+            self.sendline('clear')
+            self.interact()
+        elif i==2:
+            self.close()
+            raise ExceptionPexpect ('password refused')
+        elif i==3:
+            self.close()
+            raise ExceptionPexpect ('permission denied')
+        elif i==4:
+            self.close()
+            raise ExceptionPexpect ('Weird error. Got "are you sure" prompt twice.')
+        elif i==5:
+            self.close()
+            raise ExceptionPexpect ('timeout')
+        elif i==6:
+            self.close()
+            raise ExceptionPexpect ('connection closed')
+        else:
+            self.close()
+
+        return i
+
+    def login(self, alias):
+        cmd = self._open(alias)
+        self._spawn(cmd)
+
