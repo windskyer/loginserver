@@ -7,15 +7,19 @@
 import fcntl
 import struct
 import platform
+
 import pexpect
 from pexpect import spawn
 
 from loginserver.common import cfg
 from loginserver import excption
-CONF = cfg.CONF
 
+CONF = cfg.CONF
 def key_file(key_name="id_rsa"):
-    pass
+    key_file = os.path.expanduser('~/.ssh/') + key_name
+    if not os.path.isfile(key_file):
+        raise excption.NotFoundPKey(pkey=key_file)
+    return key_file
 
 class LoginServer(spawn):
     USERNAME = "root"
@@ -90,8 +94,9 @@ class LoginServer(spawn):
         rows, cols = self._pty_size()
         return (rows, cols)
 
-    def first_phase(self,cmd):
-        # First phase
+    @property
+    def first_phase(self):
+        """ First phase"""
         i = self.expect(["(?i)are you sure you want to continue connecting", self.original_prompt, "(?i)(?:password)|(?:passphrase for key)", "(?i)permission denied", "(?i)terminal type", TIMEOUT, "(?i)connection closed by remote host"], timeout=self.login_timeout)
         if i==0:
             self.sendline('yes')
@@ -107,7 +112,7 @@ class LoginServer(spawn):
         return i
 
     def second_phase(self, i):
-          # Second phase 
+        """Second phase """
         if i==0:
             self.close()
             raise ExceptionPexpect ('Weird error. Got "are you sure" prompt twice.')
@@ -136,6 +141,6 @@ class LoginServer(spawn):
         return i
 
     def login(self, alias):
-        cmd = self._open(alias)
+        cmd = self._set_cmd(alias)
         self._spawn(cmd)
-
+        self.second_phase(self.first_phase)
