@@ -4,16 +4,22 @@
 
 """ Log in to the specified server from config file"""
 
+import os
+import sys
 import fcntl
 import struct
+import termios
 import pexpect
 import platform
 from pexpect import spawn
+from pexpect import EOF
+from pexpect import TIMEOUT
 
-from loginserver import excption
+
+from loginserver import exception
 from loginserver.common import cfg
 from loginserver.common import log as logging
-from loginserver.excption import ExceptionPexpect
+from loginserver.exception import ExceptionPexpect
 
 CONF = cfg.CONF
 def key_file(key_name="id_rsa"):
@@ -27,15 +33,25 @@ class LoginServer(spawn):
     PASSWORD = "toor"
     IS_KEY = False
     PORT = "22" 
+    KEY_NAME = "id_rsa"
 
-    def __init__(self, timeout=30, maxread=20000):
+    def __init__(self,command=None, timeout=30, maxread=20000):
+        super(LoginServer, self).__init__(command, timeout, maxread)
         self.ssh_options = []
+        self.name = '<loginserver>'
         self.timeout = CONF.timeout or timeout
         self.maxread = CONF.maxread or maxread
+        # used to match the command-line prompt
+        self.UNIQUE_PROMPT = "\[PEXPECT\][\$\#] "
+        self.PROMPT = self.UNIQUE_PROMPT
+
+        # used to set shell command-line prompt to UNIQUE_PROMPT.
+        self.PROMPT_SET_SH = "PS1='[PEXPECT]\$ '"
+        self.PROMPT_SET_CSH = "set prompt='[PEXPECT]\$ '"
         self._set_ssh_options
 
     @property
-    def _set_ssh_options(self)
+    def _set_ssh_options(self):
         self.port = CONF.port or self.PORT
         quiet = CONF.quiet or True
         check_local_ip = CONF.check_local_ip or False
@@ -50,17 +66,17 @@ class LoginServer(spawn):
 
     def _set_cmd(self, alias=None):
         if alias is None or alias not in CONF.groups:
-            raise exception.NotFoundHost(host=hostname)
+            raise exception.NotFoundHost(host=alias)
 
         self.port = CONF[alias].port or self.port
-        self.hostname = CONF[alias].hostname
+        self.hostname = CONF[alias].hostname or CONF[alias].ip
 
         self.username = CONF[alias].username or self.USERNAME
         self.password = CONF[alias].password or self.PASSWORD
 
         self.is_key = CONF[alias].IS_KEY or self.IS_KEY
 
-        self.key_name = CONF.[alias].key_name or CONF.key_name
+        self.key_name = CONF[alias].key_name or CONF.key_name or self.KEY_NAME
 
         self.key_file = key_file(self.key_name)
 
@@ -72,12 +88,15 @@ class LoginServer(spawn):
 
         self.ssh_options.append(" -p %s" % self.port)
         self.ssh_options.append(self.hostname)
+        print self.ssh_options
         return ' '.join(self.ssh_options)
 
+    @property
     def _set_terminal(self):
+        self.terminal_type='ansi'
+        self.original_prompt=r"[#$]"
+        self.login_timeout=self.timeout or 10
 
-
-        pass
     def _pty_size(self, rows=24, cols=80):
         # Can't do much for Windows
         if platform.system() == 'Windows':
@@ -109,7 +128,8 @@ class LoginServer(spawn):
             self.sendline(self.terminal_type)
             i = self.expect(["(?i)are you sure you want to continue connecting", self.original_prompt, "(?i)(?:password)|(?:passphrase for key)", "(?i)permission denied", "(?i)terminal type", TIMEOUT])
         else:
-            raise ExceptionPexpect("Can't capture the right information") 
+            print "sfafadfafaffaf%d" % i
+            #raise ExceptionPexpect("Can't capture the right information") 
         return i
 
     def second_phase(self, i):
@@ -141,6 +161,15 @@ class LoginServer(spawn):
         return i
 
     def login(self, alias):
-        cmd = self._set_cmd(alias)
+        self._set_terminal
+        cmd = "ssh " + "".join(self._set_cmd(alias))
         self._spawn(cmd)
         self.second_phase(self.first_phase)
+
+def main(alias):
+    lg = LoginServer()
+    lg.login(alias)
+
+if __name__ == '__main__':
+    CONF()
+    main("test123")

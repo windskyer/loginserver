@@ -118,4 +118,4 @@ class ConnSsh(spawn):
 
 if __name__ == '__main__':
     cs = ConnSsh() 
-    cs.login('192.168.122.182','root','toor')
+    cs.login('192.168.122.1','love','flf1007828039@')

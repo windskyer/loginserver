@@ -2,7 +2,13 @@ import sys
 import six
 
 class Error(Exception):
-    pass
+    """Base class for cfg exceptions."""
+
+    def __init__(self, msg=None):
+        self.msg = msg                  
+
+    def __str__(self):       
+        return self.msg 
 
 class LoginserverError(Exception):
     msg_fmt = ("An unknown exception occurred.")
@@ -30,8 +36,18 @@ class LoginserverError(Exception):
         self.message = message
         super(LoginserverError, self).__init__(message)
     
-class LogConfigError(Error):
-    msg = "unkwon"
-    def __init__(self, msg):
+class LogConfigError(LoginserverError):
+    msg_fmt = "Not Found %(binfile)s configfile"
+
+class NoSuchOptError(LoginserverError):
+    msg_fmt = "'module' object has no attribute %(key)s" 
+
+class ConfigFileParseError(Error):
+    """Raised if there is an error parsing a config file."""
+
+    def __init__(self, config_file, msg):
+        self.config_file = config_file
         self.msg = msg
-        super(LogConfigError, self).__init__(self.msg)
+
+    def __str__(self):
+        return 'Failed to parse %s: %s' % (self.config_file, self.msg)

@@ -38,5 +38,5 @@ def getLogger(name=None, project="unknown", version="unknown"):
     if name not in _loggers:
         _loggers[name] = BaseLoggerAdapter(logging.getLogger(name),
                                            {'project': project,
-                                            'version': verison})
+                                            'version': version})
     return _loggers[name]

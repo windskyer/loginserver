@@ -4,9 +4,18 @@
 
 import os
 import sys
+import errno
 import inspect
 
+from six import moves
 from loginserver.common import exception
+
+
+def _normalize_group_name(group_name):
+    if group_name == 'DEFAULT':
+        return group_name
+    return group_name.lower()
+
 def _get_binary_name():
     return os.path.basename(inspect.stack()[-1][1])
 
@@ -35,16 +44,19 @@ def _find_default_config(project=None, exten='.conf'):
         /etc/foo.conf
         /etc/foo/foo.conf
     """
+    config_files = []
     if project is None:
         project = _get_binary_name() 
     default_dirs = _get_config_dirs(project)
     for pdir in default_dirs:
         tempfile = os.path.join(pdir, project + exten)
         if os.path.exists(tempfile):
-            return tempfile
+            config_files.append(tempfile)
+    return config_files
 
 
-def find_config_file(pdir=None, pfile=None, exten='.conf'):
+def find_config_files(pdir=None, pfile=None, exten='.conf'):
+    config_files = []
     confdir = os.path.expanduser('~/.ssh') 
     binfile = _get_binary_name() + exten 
     pdir = pdir or confdir
@@ -53,11 +65,13 @@ def find_config_file(pdir=None, pfile=None, exten='.conf'):
     if pfile is None:
         pfile = os.path.join(confdir, binfile)
     if os.path.exists(pfile):
-        return pfile
+        config_files.append(pfile)
+    config_files.extend(_find_default_config())
+    if len(config_files) < 1:
+        raise exception.LogConfigError(binfile=binfile)
     else:
-        pfile = _find_default_config()
-    if pfile is None:
-        raise exception.LogConfigError(msg="Not Found %s Configfile" % pfile)
+        return list(moves.filter(bool, config_files))
+
 
 class ParseError(Exception):
     def __init__(self, message, lineno, line):
@@ -166,14 +180,198 @@ class BaseParser(object):
     def error_no_section_name(self, line):
         raise self.parse_exc('Empty section name', self.lineno, line)
 
-class Config(object):
-    def read_conf(conf=None, name=None):
-        returndict = {}
-        servernamelist = []
-    pass
+class ConfigParser(BaseParser):
+    def __init__(self, filename, sections):
+        super(ConfigParser, self).__init__()
+        self.filename = filename
+        self.sections = sections
+        self._normalized = None
+        self.section = None
 
+    def _add_normalized(self, normalized):
+        self._normalized = normalized
 
+    def parse(self):                    
+        with open(self.filename) as f:  
+            return super(ConfigParser, self).parse(f)
+
+    def new_section(self, section):
+        self.section = section
+        self.sections.setdefault(self.section, {})
+
+        if self._normalized is not None:
+            self._normalized.setdefault(_normalize_group_name(self.section),{})
+
+    def assignment(self, key, value):   
+        if not self.section:
+            raise self.error_no_section()
+    
+        value = '\n'.join(value)
+
+        def append(sections, section):
+            sections[section].setdefault(key, [])
+            sections[section][key].append(value)
+
+        append(self.sections, self.section)
+        if self._normalized is not None:
+            append(self._normalized, _normalize_group_name(self.section))
+
+    def parse_exc(self, msg, lineno, line=None):
+        return ParseError(msg, lineno, line, self.filename)
+
+    def error_no_section(self):
+        return self.parse_exc('Section must be started before assignment',
+                              self.lineno)
+
+    @classmethod
+    def _parse_file(cls, config_file, namespace):
+        """Parse a config file and store any values in the namespace.
+
+        :raises: ConfigFileParseError, ConfigFileValueError
+        """
+        config_file = _fixpath(config_file)
+
+        sections = {}
+        normalized = {}
+        parser = cls(config_file, sections)
+        parser._add_normalized(normalized)
+
+        try:
+            parser.parse()
+        except ParseError as pe:
+            raise exception.ConfigFileParseError(pe.filename, str(pe))
+        except IOError as err:
+            if err.errno == errno.ENOENT:
+                #namespace._file_not_found(config_file)
+                return
+            if err.errno == errno.EACCES:
+                #namespace._file_permission_denied(config_file)
+                return
+            raise
+
+        namespace._add_parsed_config_file(sections, normalized)
+
+class _SubNamespace(object):
+    def __init__(self, group):
+        self.group = group
+
+    def setattr(self, key, value):
+        setattr(self, key, value)
+
+    def getattr(self, key):
+        try:
+            return getattr(self, key)
+        except AttributeError:
+            raise NoSuchOptError(key=key)
+
+    def __getattribute__(self, k):
+        return object.__getattribute__(self, k) 
+
+    def __setattr__(self, k, v):
+        self.__dict__[k] = v
+    
+    def __getattr__(self, k):
+        return self.__getitem__(k)
+
+    def __getitem__(self, k):
+        v = self.__dict__.get(k)
+        if isinstance(v, list) and len(v) < 2:
+            v = ''.join(v)
+        return v
+
+    def __str__(self):
+        return "<[%s] Group all opts>" % self.group
+
+    def __repr__(self):
+        return self.__str__()
+
+class _Namespace(_SubNamespace):
+    def __init__(self):
+        self.groups = []
+        self.opts = {}
+        self.namespaces = {}
+        self.sections = {}
+
+    @property
+    def prase_sections(self):
+        for group in self.groups:
+            self.setattr(group)
+            if group == "DEFAULT":
+                self.set_default_opts()
+
+        for group in self.groups: 
+            section = self.sections[group]
+            sub = self.namespaces[group]
+            for k,v in section.items():
+                if (len(v) < 2):
+                    sub.setattr(k, ''.join(v))
+                else:
+                    sub.setattr(k, v)
+
+    def set_default_opts(self):
+        for key, value in self.sections.get("DEFAULT").items():
+            setattr(self, key, value)
+
+    def setattr(self, group):
+        sub = _SubNamespace(group)
+        self.namespaces.setdefault(group, sub)
+        return setattr(self, group, sub)
+
+    def _add_parsed_sections(self, sections):
+        self.sections = sections
+        self.groups = sections.keys()
+        self.prase_sections
+
+    def _add_parsed_normalized(self, normalized):
+        pass
+
+    def _add_parsed_config_file(self, sections, normalized):
+        self._add_parsed_sections(sections)
+        self._add_parsed_normalized(normalized)
+
+    def __setitem__(self, key, value, group=None):
+        if group is None:
+            self.set_default_opts(key, value)
+        if group in self.namespaces.keys():
+            sub = self.namespcaces[group]
+            sub.setattr(key, value)
+
+    def __getitem__(self, k):
+        v = self.__dict__.get(k)
+        if isinstance(v, list) and len(v) < 2:
+            v = ''.join(v)
+        return v
+
+    def __str__(self):
+        return "Namespace all Group"
+
+class ConfigOpts(object):
+    def __init__(self):
+        """Construct a ConfigOpts object."""
+        self.groups = []
+        self._opts = {}
+        self.namespace = _Namespace()
+
+    def __call__(self, project=None, prog=None):
+        config_files = find_config_files(project, prog)
+        for config_file in config_files:
+            ConfigParser._parse_file(config_file, self.namespace)
+
+        self.groups = self.namespace.groups
+
+    def __getattr__(self, name):
+        try:
+            return self.namespace[name]
+        except Exception:
+            raise exception.NoSuchOptError(key=name)
+    def __getitem__(self, k):
+        return self.__getattr__(k)
+
+CONF = ConfigOpts()
 if __name__ == '__main__':
-    print _get_binary_name()
-    find_config_file()
-    _find_default_config()
+    CONF()
+    #print CONF.DEFAULT
+    print dir(CONF)
+    print CONF.groups
+    print CONF.aix140.ip
+    #print CONF.ip
