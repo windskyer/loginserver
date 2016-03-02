@@ -2,8 +2,8 @@
 #email suifeng20@hotmail.com
 #data 2016/02/26
 
-
 import logging
+
 def setup(conf, product_name, version='unknown'):
     """ Setup logging for the current product"""
     if conf.log_config_append:

@@ -7,7 +7,6 @@ import sys
 import inspect
 
 from loginserver.common import exception
-
 def _get_binary_name():
     return os.path.basename(inspect.stack()[-1][1])
 

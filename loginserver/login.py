@@ -6,13 +6,14 @@
 
 import fcntl
 import struct
-import platform
-
 import pexpect
+import platform
 from pexpect import spawn
 
-from loginserver.common import cfg
 from loginserver import excption
+from loginserver.common import cfg
+from loginserver.common import log as logging
+from loginserver.excption import ExceptionPexpect
 
 CONF = cfg.CONF
 def key_file(key_name="id_rsa"):
@@ -108,7 +109,7 @@ class LoginServer(spawn):
             self.sendline(self.terminal_type)
             i = self.expect(["(?i)are you sure you want to continue connecting", self.original_prompt, "(?i)(?:password)|(?:passphrase for key)", "(?i)permission denied", "(?i)terminal type", TIMEOUT])
         else:
-            raise 
+            raise ExceptionPexpect("Can't capture the right information") 
         return i
 
     def second_phase(self, i):
@@ -137,7 +138,6 @@ class LoginServer(spawn):
             raise ExceptionPexpect ('connection closed')
         else:
             self.close()
-
         return i
 
     def login(self, alias):

@@ -9,3 +9,6 @@ class NotFoundPKey(Error):
 
 class NotFoundHost(Error):
     msg_fmt = ("Not Found ssh server hostname %(host)s from config") 
+
+class ExceptionPexpect(Error):
+    msg_fmt = ("Pexpct runing Error")
