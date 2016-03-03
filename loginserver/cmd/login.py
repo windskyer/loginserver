@@ -33,6 +33,8 @@ def set_env():
 
 def main():
     argv = sys.argv
+    if len(argv) < 2:
+        sys.exit(1)
     alias = argv[-1]
     set_env()
     login.main(alias)

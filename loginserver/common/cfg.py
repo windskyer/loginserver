@@ -67,10 +67,7 @@ def find_config_files(pdir=None, pfile=None, exten='.conf'):
     if os.path.exists(pfile):
         config_files.append(pfile)
     config_files.extend(_find_default_config())
-    if len(config_files) < 1:
-        raise exception.LogConfigError(binfile=binfile)
-    else:
-        return list(moves.filter(bool, config_files))
+    return list(moves.filter(bool, config_files))
 
 
 class ParseError(Exception):
@@ -95,7 +92,6 @@ class BaseParser(object):
             return self.error_no_section_end_bracket(line)
         if len(line) <= 2:
             return self.error_no_section_name(line)
-
         return line[1:-1]
     
     def _split_key_value(self, line):
@@ -363,6 +359,8 @@ class ConfigOpts(object):
         config_files = find_config_files(project, prog)
         if dev_file is not None:
             config_files.append(dev_file)
+        if len(config_files) < 1:
+            raise exception.LogConfigError(binfile=binfile)
         for config_file in config_files:
             ConfigParser._parse_file(config_file, self.namespace)
 

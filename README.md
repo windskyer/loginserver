@@ -12,10 +12,12 @@ Usage
 ====
 
 ```
+$ source run.sh
 $ loginserver vpn
 ```
 
 
 ```
+$ source run.sh
 $ loginserver vpn vps
 ```
