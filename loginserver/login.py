@@ -26,7 +26,7 @@ CONF = cfg.CONF
 def key_file(key_name="id_rsa"):
     key_file = os.path.expanduser('~/.ssh/') + key_name
     if not os.path.isfile(key_file):
-        raise excption.NotFoundPKey(pkey=key_file)
+        raise exception.NotFoundPKey(pkey=key_file)
     return key_file
 
 class LoginServer(spawn):
@@ -34,7 +34,7 @@ class LoginServer(spawn):
     PASSWORD = "toor"
     IS_KEY = False
     PORT = "22" 
-    KEY_NAME = "id_rsa"
+    KEY_FILE = "id_rsa"
 
     def __init__(self,command=None, timeout=30, maxread=20000):
         super(LoginServer, self).__init__(command, timeout, maxread)
@@ -62,7 +62,7 @@ class LoginServer(spawn):
             self.ssh_options.append(" -q")
         if not check_local_ip:
             self.ssh_options.append(" -o 'NoHostAuthenticationForLocalhost=yes'")
-        if not force_password:
+        if not force_password and not CONF.is_key:
             self.ssh_options.append("-o 'RSAAuthentication=no' -o 'PubkeyAuthentication=no'")
 
     def _set_cmd(self, alias=None):
@@ -77,13 +77,11 @@ class LoginServer(spawn):
         self.username = CONF[alias].username or self.USERNAME
         self.password = CONF[alias].password or self.PASSWORD
 
-        self.is_key = CONF[alias].IS_KEY or self.IS_KEY
-
-        self.key_name = CONF[alias].key_name or CONF.key_name or self.KEY_NAME
-
-        self.key_file = key_file(self.key_name)
+        self.is_key = CONF[alias].is_key or self.IS_KEY
 
         if self.is_key:
+            self.key_name = CONF[alias].key_file or CONF.key_file or self.KEY_FILE
+            self.key_file = key_file(self.key_name)
             self.ssh_options.append(" -i %s" % self.key_file)
 
         if self.username:
@@ -164,6 +162,7 @@ class LoginServer(spawn):
     def login(self, alias):
         self._set_terminal
         cmd = "ssh " + "".join(self._set_cmd(alias))
+        print cmd
         self._spawn(cmd)
         self.second_phase(self.first_phase)
 

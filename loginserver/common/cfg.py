@@ -304,7 +304,12 @@ class _Namespace(_SubNamespace):
             sub = self.namespaces[group]
             for k,v in section.items():
                 if (len(v) < 2):
-                    sub.setattr(k, ''.join(v))
+                    subvalue = ''.join(v)
+                    if subvalue == "True" or subvalue == "true":
+                        subvalue = True
+                    if subvalue == "False" or subvalue == "false":
+                        subvalue = False
+                    sub.setattr(k, subvalue)
                 else:
                     sub.setattr(k, v)
 
