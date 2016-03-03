@@ -1,6 +1,21 @@
-# Loginserver
-Login server from sshd server
+loginserver
+===
+
+loginserver is a ssh to remote sshd server but we don't input 
+'ssh -l root 10.0.0.1 -p 22' and don't input 'yes' , 'password'.
+
+This means you can fast login youself a or more sshd server in one terminal windows
 
 https://github.com/windskyer/Loginserver/
 
-We not exec ssh to login server
+Usage
+====
+
+```
+$ loginserver vpn
+```
+
+
+```
+$ loginserver vpn vps
+```
