@@ -162,7 +162,6 @@ class LoginServer(spawn):
     def login(self, alias):
         self._set_terminal
         cmd = "ssh " + "".join(self._set_cmd(alias))
-        print cmd
         self._spawn(cmd)
         self.second_phase(self.first_phase)
 
