@@ -313,9 +313,10 @@ class _Namespace(_SubNamespace):
             setattr(self, key, value)
 
     def setattr(self, group):
-        sub = _SubNamespace(group)
-        self.namespaces.setdefault(group, sub)
-        return setattr(self, group, sub)
+        if group not in self.namespaces.keys():
+            sub = _SubNamespace(group)
+            self.namespaces.setdefault(group, sub)
+            return setattr(self, group, sub)
 
     def _add_parsed_sections(self, sections):
         self.sections = sections
@@ -357,7 +358,6 @@ class ConfigOpts(object):
         config_files = find_config_files(project, prog)
         if dev_file is not None:
             config_files.append(dev_file)
-        print config_files
         for config_file in config_files:
             ConfigParser._parse_file(config_file, self.namespace)
 

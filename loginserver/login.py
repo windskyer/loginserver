@@ -91,7 +91,6 @@ class LoginServer(spawn):
 
         self.ssh_options.append(" -p %s" % self.port)
         self.ssh_options.append(self.hostname)
-        print self.ssh_options
         return ' '.join(list(moves.filter(bool, self.ssh_options)))
 
     @property
@@ -130,9 +129,8 @@ class LoginServer(spawn):
         elif i==4:
             self.sendline(self.terminal_type)
             i = self.expect(["(?i)are you sure you want to continue connecting", self.original_prompt, "(?i)(?:password)|(?:passphrase for key)", "(?i)permission denied", "(?i)terminal type", TIMEOUT])
-        else:
-            print "sfafadfafaffaf%d" % i
-            #raise ExceptionPexpect("Can't capture the right information") 
+        elif i!=1:
+            raise ExceptionPexpect("Can't capture the right information") 
         return i
 
     def second_phase(self, i):
