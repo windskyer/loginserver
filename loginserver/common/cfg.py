@@ -351,9 +351,13 @@ class ConfigOpts(object):
         self.groups = []
         self._opts = {}
         self.namespace = _Namespace()
+        self.config_files = []
 
-    def __call__(self, project=None, prog=None):
+    def __call__(self, dev_file=None, project=None, prog=None):
         config_files = find_config_files(project, prog)
+        if dev_file is not None:
+            config_files.append(dev_file)
+        print config_files
         for config_file in config_files:
             ConfigParser._parse_file(config_file, self.namespace)
 

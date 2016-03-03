@@ -1,0 +1,140 @@
+[DEFAULT]
+ip = net1-%d
+port = 22
+user_name = root 
+user_passwd = teamsun
+is_key = False
+key_file = rsa
+
+[vm24]
+#ssh service ip
+ip = 172.24.23.24
+
+[vm222]
+#ssh service port
+port = 22 
+
+#ssh service ip 
+ip = 172.24.23.222 
+
+#ssh service user name
+user_name = root 
+
+#ssh service password
+user_passwd = flftuu100
+
+#ssh service ssh key auth login
+is_key = False
+
+[vm187]
+ip = 172.24.23.187
+user_passwd = flftuu100
+[vm200]
+#ssh service port
+port = 22 
+
+#ssh service ip 
+ip = 172.24.23.200
+
+#ssh service user name
+user_name = root 
+
+#ssh service password
+user_passwd = flftuu100 
+
+#ssh service ssh key auth login
+is_key = False
+
+[aix178]
+ip = 172.24.23.178
+
+[aix140]
+ip = 172.24.23.140
+
+[aix212]
+ip = 172.24.23.212
+
+[vm22]
+ip = 172.24.23.22
+[vm19]
+ip = 172.24.23.19
+[vm18]
+ip = 172.24.23.18
+
+##local host 192.168.122.xxx
+[VM18]
+ip = 192.168.122.18
+
+[VM231]
+ip = 192.168.122.231
+user_passwd = toor
+[vm43]
+ip = 172.24.23.43 
+[vm170]
+ip = 172.24.23.170
+
+[vps]
+ip = vps.flftuu.com
+port = 27101
+user_name = root 
+user_passwd = flftuu100
+is_key = True
+key_file = id_rsa.bak.login_server
+
+[vpn]
+
+ip = vpn.flftuu.com
+#ip = 104.236.150.96
+port = 27101
+user_name = root 
+user_passwd = 1flftuu100
+is_key = True
+key_file = id_rsa.bak.login_server
+
+[web]
+ip = web.flftuu.com
+port = 27101
+user_name = root 
+user_passwd = 1flftuu100
+is_key = True
+key_file = id_rsa.bak.login_server
+
+
+[aix20]
+ip = 172.24.23.20
+
+[vm58]
+ip = 172.24.23.58
+
+[eclipse]
+ip = 192.168.122.74
+user_passwd = toor
+
+[ubuntu]
+ip = 192.168.122.12
+user_passwd = teamsun
+[docker]
+ip = 192.168.122.226
+user_passwd = toor
+
+[ustack]
+ip = ssh.ustack.com
+user_passwd = ustack002235
+user_name = leidong
+
+[fedora]
+ip = 192.168.122.25
+user_passwd = toor
+
+
+[cinder]
+ip = 192.168.122.206
+user_passwd = toor
+
+[test123]
+ip = 10.0.5.123
+user_passwd = ^ustack$
+
+[test124]
+ip = 10.0.5.124
+user_passwd = ^ustack$

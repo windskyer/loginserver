@@ -11,6 +11,7 @@ import struct
 import termios
 import pexpect
 import platform
+from six import moves
 from pexpect import spawn
 from pexpect import EOF
 from pexpect import TIMEOUT
@@ -68,9 +69,11 @@ class LoginServer(spawn):
         if alias is None or alias not in CONF.groups:
             raise exception.NotFoundHost(host=alias)
 
-        self.port = CONF[alias].port or self.port
         self.hostname = CONF[alias].hostname or CONF[alias].ip
+        if self.hostname is None:
+            raise exception.NotFoundHostIp(alias=alias, ip=self.hostname)
 
+        self.port = CONF[alias].port or self.port
         self.username = CONF[alias].username or self.USERNAME
         self.password = CONF[alias].password or self.PASSWORD
 
@@ -89,7 +92,7 @@ class LoginServer(spawn):
         self.ssh_options.append(" -p %s" % self.port)
         self.ssh_options.append(self.hostname)
         print self.ssh_options
-        return ' '.join(self.ssh_options)
+        return ' '.join(list(moves.filter(bool, self.ssh_options)))
 
     @property
     def _set_terminal(self):

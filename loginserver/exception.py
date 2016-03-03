@@ -12,3 +12,6 @@ class NotFoundHost(Error):
 
 class ExceptionPexpect(Error):
     msg_fmt = ("Pexpct runing Error")
+
+class NotFoundHostIp(Error):
+    msg_fmt = ("Not Found ssh server alias: %(alias)s and ip or hostname : %(ip)s")
