@@ -1,0 +1,57 @@
+Metadata-Version: 1.1
+Name: loginserver
+Version: 1.1.2
+Summary: login remote sshd server
+Home-page: http://www.flftuu.com/
+Author: zwei
+Author-email: openstack-dev@lists.openstack.org
+License: UNKNOWN
+Description: ======
+                    Usage
+                    ====
+
+                    ```
+                    $ source run.sh
+                    $ loginserver vm22
+                    ssh -l root -p 2222 www.vm22.com
+                    ```
+                    
+                    
+                    ```
+                    $ source run.sh
+                    $ loginserver vm23
+                    ssh -l root -p 22 192.168.122.23
+                    ```
+                    
+                    ```
+                    $ source run.sh
+                    $ loginserver vm23
+                    ssh -l root -p 22 -i ~/.ssh/id_ras_24 192.168.122.23
+                    ```
+                    Config File
+                    ===
+                    ```
+                    [DEFAULT]
+                    ip = 1.1.1.1
+                    port = 22
+                    username = root
+                    password = toor
+                    is_key = False
+                    key_file = id_ras
+                    
+                    [vm22]
+                    hostname = www.vm22.com
+                    ip = 192.168.122.22
+                    port = 2222
+                    username = root
+                    password = toor
+
+Platform: UNKNOWN
+Classifier: Environment :: Loginserver
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
