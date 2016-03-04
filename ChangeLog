@@ -1,3 +1,54 @@
 CHANGES
 =======
 
+1.1.4
+-----
+
+* add loginserver version
+* alter readme file
+* add MANIFEST.in file
+* alter readme file name
+* alter readme file name
+* alter readme file name
+* add AC file
+
+1.1.3
+-----
+
+* add PKG info file
+
+1.1.2
+-----
+
+* add file
+* alter config file
+
+1.1.1
+-----
+
+* add run.sh file
+
+1.1.0
+-----
+
+* remove tag
+* readme edit
+* remove all print function
+* add is_key
+* add more config file
+* add requirements.txt file
+* add loginserver ssh server info
+* add cfg file set samtiong
+* add exception class about 'Not Found'
+* set login server cmd
+* alter loginserver object level
+* add python module pexcpt
+* login server ssh from login.py or ssh.py
+* new way to readconfig
+* add log file print log info to config.logfile
+* add shell script
+* add openstack object
+* add files
+* add files
+* Create README.md
+* Initial commit
