@@ -58,4 +58,5 @@ key_file = id_ras_24
 ```
 Download
 ===
-Download [loginserver](http://wwww.flftuu.com/repo/loginserver/ "loginserver") rpm 
+Download [loginserver](http://wwww.flftuu.com/repo/loginserver/loginserver-1.1.4-1.noarch.rpm "loginserver") rpm 
+Or <http://www.flftuu.com/repo/loginserver/ "loginserver">
