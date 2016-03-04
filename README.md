@@ -56,3 +56,8 @@ ip = 192.168.122.24
 is_key = True
 key_file = id_ras_24
 ```
+Download
+===
+```
+Download [loginserver](http://wwww.flftuu.com/rpm/loginserver/ "loginserver") rpm 
+```
