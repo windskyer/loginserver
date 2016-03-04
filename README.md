@@ -6,7 +6,7 @@ loginserver is a ssh to remote sshd server but we don't input
 
 This means you can fast login youself a or more sshd server in one terminal windows
 
-https://github.com/windskyer/Loginserver/
+Home-Pages <https://github.com/windskyer/Loginserver/>
 
 Usage
 ====
