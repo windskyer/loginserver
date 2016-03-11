@@ -276,13 +276,14 @@ class _SubNamespace(object):
         return v
 
     def __str__(self):
-        return "<[%s] Group all opts>" % self.group
+        return "<[%s] Group all opts>" % self.all_groups
 
     def __repr__(self):
         return self.__str__()
 
 class _Namespace(_SubNamespace):
     def __init__(self):
+        self.all_groups = []
         self.groups = []
         self.opts = {}
         self.namespaces = {}
@@ -321,6 +322,9 @@ class _Namespace(_SubNamespace):
 
     def _add_parsed_sections(self, sections):
         self.sections = sections
+        for g in sections.keys():
+            self.all_groups.append(g if g not in self.groups else None)
+        self.all_groups=(filter(bool, self.all_groups))
         self.groups = sections.keys()
         self.prase_sections
 
@@ -345,7 +349,7 @@ class _Namespace(_SubNamespace):
         return v
 
     def __str__(self):
-        return "Namespace all Group"
+        return "Namespace all [%s] Group" % ' '.join(self.all_groups)
 
 class ConfigOpts(object):
     def __init__(self):
@@ -364,7 +368,7 @@ class ConfigOpts(object):
         for config_file in config_files:
             ConfigParser._parse_file(config_file, self.namespace)
 
-        self.groups = self.namespace.groups
+        self.groups = self.namespace.all_groups
 
     def __getattr__(self, name):
         try:

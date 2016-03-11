@@ -1,6 +1,19 @@
 CHANGES
 =======
 
+1.1.6
+-----
+
+* alter setup file
+* alter ' to "
+* alter log version
+* add bug int tr type
+* pep8 test error
+
+1.1.5
+-----
+
+* alter setup file
 * alter setup file
 * add setup data_files
 * add setup data_files
