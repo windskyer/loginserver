@@ -168,8 +168,8 @@ class LoginServer(spawn):
         """Second phase """
         if i == 0:
             self.close()
-            raise ExceptionPexpect('Weird error. "
-                                   Got "are you sure" prompt twice.')
+            raise ExceptionPexpect('Weird error. '
+                                   'Got "are you sure" prompt twice.')
         elif i == 1:
             self.setwinsize(*self._resize)
             self.sendline('clear')
@@ -182,8 +182,8 @@ class LoginServer(spawn):
             raise ExceptionPexpect('permission denied')
         elif i == 4:
             self.close()
-            raise ExceptionPexpect('Weird error. "
-                                   "Got "are you sure" prompt twice.')
+            raise ExceptionPexpect('Weird error. '
+                                   'Got "are you sure" prompt twice.')
         elif i == 5:
             self.close()
             raise ExceptionPexpect('timeout')
