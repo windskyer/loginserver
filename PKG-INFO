@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: loginserver
-Version: 1.1.5
+Version: 1.1.6
 Summary: 'auth login sshd server with password or public_key'
 Home-page: 'https://github.com/windskyer/loginserver'
 Author: 'zwei'
