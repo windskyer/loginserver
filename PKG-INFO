@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: loginserver
-Version: 1.1.4
+Version: 1.1.5
 Summary: 'auth login sshd server with password or public_key'
 Home-page: 'https://github.com/windskyer/loginserver'
 Author: 'zwei'
@@ -14,7 +14,7 @@ Description: loginserver
         
         This means you can fast login youself a or more sshd server in one terminal windows
         
-        https://github.com/windskyer/Loginserver/
+        Home-Pages <https://github.com/windskyer/Loginserver/>
         
         Usage
         ====
@@ -64,6 +64,10 @@ Description: loginserver
         is_key = True
         key_file = id_ras_24
         ```
+        Download
+        ===
+        Download [loginserver](http://wwww.flftuu.com/repo/loginserver/loginserver-1.1.4-1.noarch.rpm "loginserver") rpm 
+        Or <http://www.flftuu.com/repo/loginserver>
         
         
 Platform: ''
