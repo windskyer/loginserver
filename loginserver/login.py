@@ -43,8 +43,8 @@ class LoginServer(spawn):
         super(LoginServer, self).__init__(command, timeout, maxread)
         self.ssh_options = []
         self.name = '<loginserver>'
-        self.timeout = CONF.timeout or timeout
-        self.maxread = CONF.maxread or maxread
+        self.timeout = int(CONF.timeout) if CONF.timeout else timeout
+        self.maxread = int(CONF.maxread) if CONF.maxread else maxread
         # used to match the command-line prompt
         self.UNIQUE_PROMPT = "\[PEXPECT\][\$\#] "
         self.PROMPT = self.UNIQUE_PROMPT
