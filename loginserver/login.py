@@ -7,10 +7,13 @@
 import os
 import sys
 import fcntl
+import signal
 import struct
+import getpass
 import termios
 import pexpect
 import platform
+
 from six import moves
 from pexpect import spawn
 from pexpect import EOF
@@ -38,6 +41,7 @@ class LoginServer(spawn):
     IS_KEY = False
     PORT = "22"
     KEY_FILE = "id_rsa"
+    RECONNECT = 3
 
     def __init__(self, command=None, timeout=30, maxread=20000):
         super(LoginServer, self).__init__(command, timeout, maxread)
@@ -45,6 +49,8 @@ class LoginServer(spawn):
         self.name = '<loginserver>'
         self.timeout = int(CONF.timeout) if CONF.timeout else timeout
         self.maxread = int(CONF.maxread) if CONF.maxread else maxread
+        self.reconnect = (int(CONF.reconnect)
+                          if CONF.reconnect else self.RECONNECT)
         # used to match the command-line prompt
         self.UNIQUE_PROMPT = "\[PEXPECT\][\$\#] "
         self.PROMPT = self.UNIQUE_PROMPT
@@ -53,6 +59,7 @@ class LoginServer(spawn):
         self.PROMPT_SET_SH = "PS1='[PEXPECT]\$ '"
         self.PROMPT_SET_CSH = "set prompt='[PEXPECT]\$ '"
         self._set_ssh_options
+        self.connect = 0
 
     @property
     def _set_ssh_options(self):
@@ -79,8 +86,8 @@ class LoginServer(spawn):
             raise exception.NotFoundHostIp(alias=alias, ip=self.hostname)
 
         self.port = CONF[alias].port or self.port
-        self.username = CONF[alias].username or self.USERNAME
-        self.password = CONF[alias].password or self.PASSWORD
+        self.username = CONF[alias].username or CONF.username or self.USERNAME
+        self.password = CONF[alias].password or CONF.password or self.PASSWORD
 
         self.is_key = CONF[alias].is_key or self.IS_KEY
 
@@ -124,6 +131,7 @@ class LoginServer(spawn):
     @property
     def first_phase(self):
         """ First phase"""
+        self._spawn(self.cmd)
         i = self.expect(["(?i)are you sure you want to continue connecting",
                          self.original_prompt,
                          "(?i)(?:password)|(?:passphrase for key)",
@@ -164,6 +172,13 @@ class LoginServer(spawn):
                                    "right information ")
         return i
 
+    @property
+    def input_passwd(self):
+        self.connect += 1
+        msg = "Login %(host)s need password" % dict(host=self.hostname)
+        self.password = getpass.getpass("%s, Enter password: " % msg)
+        self.second_phase(self.first_phase)
+
     def second_phase(self, i):
         """Second phase """
         if i == 0:
@@ -175,6 +190,13 @@ class LoginServer(spawn):
             self.sendline('clear')
             self.interact()
         elif i == 2:
+            if self.connect < self.reconnect:
+                self.kill(signal.SIGTERM)
+                self.close()
+                self.pid = None
+                self.input_passwd
+                # LOG.warn('this password waring')
+                return
             self.close()
             raise ExceptionPexpect('password refused')
         elif i == 3:
@@ -196,8 +218,7 @@ class LoginServer(spawn):
 
     def login(self, alias):
         self._set_terminal
-        cmd = "ssh " + "".join(self._set_cmd(alias))
-        self._spawn(cmd)
+        self.cmd = "ssh " + "".join(self._set_cmd(alias))
         self.second_phase(self.first_phase)
 
 
