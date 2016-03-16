@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+* modify config file :
+* add reconnect 3 time
+* add more config file
+
 1.1.6
 -----
 

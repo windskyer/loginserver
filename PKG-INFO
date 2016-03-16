@@ -41,12 +41,28 @@ Description: loginserver
         ===
         ```
         [DEFAULT]
-        ip = 1.1.1.1
+        #ssh service ip
+        ip = net1-%d
+        
+        #ssh service port
         port = 22
+        
+        #ssh service user name
         username = root
+        
+        #ssh service password
         password = toor
+        
+        #ssh service ssh key auth login
         is_key = False
-        key_file = id_ras
+        key_file = rsa
+        
+        #connect sshd server timeout
+        timeout = 300
+        
+        #connect sshd server 1  time
+        reconnect = 1
+        
         
         [vm22]
         hostname = www.vm22.com
@@ -64,6 +80,7 @@ Description: loginserver
         is_key = True
         key_file = id_ras_24
         ```
+        
         Download
         ===
         Download [loginserver](http://wwww.flftuu.com/repo/loginserver/loginserver-1.1.4-1.noarch.rpm "loginserver") rpm 
