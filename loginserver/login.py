@@ -175,7 +175,7 @@ class LoginServer(spawn):
     @property
     def input_passwd(self):
         self.connect += 1
-        msg = "Login %(host)s need password" % dict(host=self.hostname)
+        msg = "Login %(host)s" % dict(host=self.hostname)
         self.password = getpass.getpass("%s, Enter password: " % msg)
         self.second_phase(self.first_phase)
 
