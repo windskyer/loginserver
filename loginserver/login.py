@@ -81,7 +81,7 @@ class LoginServer(spawn):
         if alias is None or alias not in CONF.groups:
             raise exception.NotFoundHost(host=alias)
 
-        self.hostname = CONF[alias].hostname or CONF[alias].ip
+        self.hostname = CONF[alias].ip or CONF[alias].hostname
         if self.hostname is None:
             raise exception.NotFoundHostIp(alias=alias, ip=self.hostname)
 
