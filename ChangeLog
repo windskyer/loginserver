@@ -1,6 +1,9 @@
 CHANGES
 =======
 
+* first  ip laster hosntname
+* alter same msg for login func
+* ChangeLog file
 * modify config file :
 * add reconnect 3 time
 * add more config file

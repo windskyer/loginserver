@@ -3,9 +3,12 @@
 # email suifeng20@hotmail.com
 # data 2016/3/2
 
+from __future__ import print_function
+
 import os
 import sys
 from loginserver import login
+from loginserver.login import Login
 from loginserver.common import cfg
 from loginserver.common import log as logging
 
@@ -34,13 +37,28 @@ def set_env():
     # LOG = logging.setup(*argv[:-1])
 
 
+def help_info():
+    print("\n" + " " * 15 + "Print available aliase")
+    for alias in Login.all_alias():
+        print("alias %-8s " % alias, end='')
+        print("-" * 10 + ">   ", end='')
+        print("hostname or ip %2s" % Login.get_hostname(alias))
+    sys.exit(1)
+
+
+def not_in_alias(alias=None):
+    if alias not in Login.all_alias():
+        help_info()
+    return alias
+
+
 def main():
     argv = sys.argv
-    if len(argv) < 2:
-        sys.exit(1)
-    alias = argv[-1]
     set_env()
-    login.main(alias)
+    if len(argv) < 2:
+        help_info()
+    alias = argv[-1]
+    login.main(not_in_alias(alias))
 
 if __name__ == '__main__':
     main()

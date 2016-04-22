@@ -13,6 +13,7 @@ import getpass
 import termios
 import pexpect
 import platform
+import subprocess
 
 from six import moves
 from pexpect import spawn
@@ -105,6 +106,18 @@ class LoginServer(spawn):
         self.ssh_options.append(self.hostname)
         return ' '.join(list(moves.filter(bool, self.ssh_options)))
 
+    @staticmethod
+    def all_alias():
+        all_hostname = CONF.groups
+        if 'DEFAULT' in all_hostname:
+            all_hostname.remove('DEFAULT')
+        return all_hostname
+
+    @classmethod
+    def get_hostname(cls, alias=None):
+        if alias and alias in cls.all_alias():
+            return CONF[alias].ip or CONF[alias].hostname
+
     @property
     def _set_terminal(self):
         self.terminal_type = 'ansi'
@@ -129,17 +142,45 @@ class LoginServer(spawn):
         return (rows, cols)
 
     @property
+    def _reset_known_hosts(self):
+        self.pid = None
+        if self.port != self.PORT:
+            hostname = "[%s]:%s" % (self.hostname, self.port)
+        ssh_cmd = "ssh-keygen -R %s" % hostname
+        subprocess.call(ssh_cmd, shell=True)
+
+    @property
+    def reset_known_hosts(self):
+        self._reset_know_hosts
+
+    @property
     def first_phase(self):
         """ First phase"""
-        self._spawn(self.cmd)
-        i = self.expect(["(?i)are you sure you want to continue connecting",
-                         self.original_prompt,
-                         "(?i)(?:password)|(?:passphrase for key)",
-                         "(?i)permission denied",
-                         "(?i)terminal type",
-                         TIMEOUT,
-                         "(?i)connection closed by remote host"],
-                        timeout=self.login_timeout)
+        i = -1
+        try:
+            self._spawn(self.cmd)
+            i = self.expect(["(?i)are you sure you want to continue "
+                             "connecting",
+                             self.original_prompt,
+                             "(?i)(?:password)|(?:passphrase for key)",
+                             "(?i)permission denied",
+                             "(?i)terminal type",
+                             TIMEOUT,
+                             "(?i)connection closed by remote host"],
+                            timeout=self.login_timeout)
+        except EOF:
+            self._reset_known_hosts
+            self._spawn(self.cmd)
+            i = self.expect(["(?i)are you sure you want to continue "
+                             "connecting",
+                             self.original_prompt,
+                             "(?i)(?:password)|(?:passphrase for key)",
+                             "(?i)permission denied",
+                             "(?i)terminal type",
+                             TIMEOUT,
+                             "(?i)connection closed by remote host"],
+                            timeout=self.login_timeout)
+
         if i == 0:
             self.sendline('yes')
             i = self.expect(["(?i)are you sure you want to "
@@ -222,8 +263,11 @@ class LoginServer(spawn):
         self.second_phase(self.first_phase)
 
 
+Login = LoginServer
+
+
 def main(alias):
-    lg = LoginServer()
+    lg = Login()
     lg.login(alias)
 
 
