@@ -1,2 +1,3 @@
+pbr>=1.8
 pexpect
 six
