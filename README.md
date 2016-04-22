@@ -73,6 +73,26 @@ is_key = True
 key_file = id_ras_24
 ```
 
+Help Info
+===
+```
+          Print available aliase
+          alias web      ----------> hostname or ip web.flftuu.com
+          alias test123  ----------> hostname or ip 10.0.5.123
+          alias test124  ----------> hostname or ip 10.0.5.124
+          alias fedora   ----------> hostname or ip 192.168.122.25
+          alias vps      ----------> hostname or ip vps.flftuu.com
+          alias ceph2    ----------> hostname or ip 192.168.122.57
+          alias ceph1    ----------> hostname or ip 192.168.122.32
+          alias cinder   ----------> hostname or ip 192.168.122.206
+          alias vpn      ----------> hostname or ip vpn.flftuu.com
+          alias ustack   ----------> hostname or ip ssh.ustack.com
+          alias vpn3     ----------> hostname or ip 121.201.53.45
+          alias vm23     ----------> hostname or ip 192.168.122.23
+          alias vm22     ----------> hostname or ip 192.168.122.22
+          alias vm24     ----------> hostname or ip 192.168.122.24
+```
+
 Download
 ===
 Download [loginserver](http://wwww.flftuu.com/repo/loginserver/loginserver-1.1.4-1.noarch.rpm "loginserver") rpm 
