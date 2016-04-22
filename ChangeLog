@@ -1,7 +1,9 @@
 CHANGES
 =======
 
-* first  ip laster hosntname
+* change message info
+* add help info for loginserver
+* first ip laster hosntname
 * alter same msg for login func
 * ChangeLog file
 * modify config file :
